@@ -17,12 +17,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * App启动的时候，自动调用这个方法
+ * @author lwg
  */
-@Service
 public class FileLogListening implements ApplicationContextAware {
-
-    private long lastTimeFileSize = 0;  //上次文件大小
 
 
     //websocket发送消息的类
@@ -34,7 +31,7 @@ public class FileLogListening implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        String logPath = "D:\\work-heikn\\其他代码\\java\\技术栈\\springboot整合websocket\\notification-service-master\\log\\a.log";
+        String logPath = "a.log";
 
         try {
             File logFile = ResourceUtils.getFile(logPath);
@@ -44,13 +41,12 @@ public class FileLogListening implements ApplicationContextAware {
             exec.scheduleWithFixedDelay(new Runnable() {
                 public void run() {
                     try {
-                        randomFile.seek(lastTimeFileSize); //定位文件的位置
+                        randomFile.seek(0); //定位文件的位置
                         String all = "";
                         String tmp = "";
                         while ((tmp = randomFile.readLine()) != null) {
                             String log=new String(tmp.getBytes("ISO8859-1"));
                             all = all + "\r\n" + log;
-                           // template.convertAndSend("/topic/pushNotification", log);
                         }
 
 
@@ -65,8 +61,6 @@ public class FileLogListening implements ApplicationContextAware {
                             }
                         }
 
-
-//                        lastTimeFileSize = randomFile.length();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -76,9 +70,7 @@ public class FileLogListening implements ApplicationContextAware {
             e.printStackTrace();
         }
 
-        /**
-         * 1.监听一个文件，每分钟轮训一次。如果有数据，就直接掉一共send
-         */
+
     }
 
     /**
